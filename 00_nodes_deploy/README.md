@@ -16,6 +16,38 @@ En todos los nodos
 sudo mount.glusterfs localhost:/swarm-vols /swarm/volumes
 ```
 
+### Troubleshoothing
+
+#### Caso 1:
+```
+sudo gluster peer probe node2
+unable-to-peer-probe-in-glusterfs-transport-endpoint-is-not-connected
+```
+
+#### Solución:
+Verifique que el nodo 2 tiene una ip privada asignada (192.168.56.103)
+```
+$ ip a
+3: enp0s8: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 08:00:27:d6:35:09 brd ff:ff:ff:ff:ff:ff
+
+$ vi /etc/network/interfaces
+auto enp0s8
+iface enp0s8 inet static
+      address 192.168.56.103
+      netmask 255.255.255.0
+
+$ /etc/init.d/networking restart
+
+$ ip a
+3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 08:00:27:d6:35:09 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.56.103/24 brd 192.168.56.255 scope global enp0s8
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fed6:3509/64 scope link
+       valid_lft forever preferred_lft forever
+```
+
 ### References
 * http://embaby.com/blog/using-glusterfs-docker-swarm-cluster/
 * https://docs.gluster.org/en/latest/Quick-Start-Guide/Quickstart/
