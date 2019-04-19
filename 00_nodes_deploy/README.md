@@ -20,7 +20,7 @@ sudo mount.glusterfs localhost:/swarm-vols /swarm/volumes
 
 #### Caso 1:
 ```
-sudo gluster peer probe node2
+$ sudo gluster peer probe node2
 unable-to-peer-probe-in-glusterfs-transport-endpoint-is-not-connected
 ```
 
