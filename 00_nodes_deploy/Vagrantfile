@@ -1,0 +1,89 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+firstDisk = './firstDisk.vdi'
+secondDisk = './secondDisk.vdi'
+thirdDisk = './thirdDisk.vdi'
+fourthDisk = './fourthDisk.vdi'
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.ssh.insert_key = false
+  config.vm.define :k8s_master do |k8sm|
+    k8sm.vm.box = "ubuntu/xenial64"
+    k8sm.vm.network :private_network, ip: "192.168.56.101"
+    k8sm.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "2048","--cpus", "1", "--name", "k8s_node_0b" ]
+      unless File.exist?(firstDisk)
+        vb.customize ['createhd', '--filename', firstDisk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', firstDisk]
+    end
+    k8sm.vm.provision "shell", inline: <<-SHELL
+      echo "node0" > /etc/hostname
+      hostname node0
+    SHELL
+    k8sm.vm.provision "shell", path: "install/configurations.sh"
+    k8sm.vm.provision "shell", path: "install/docker.sh"
+    k8sm.vm.provision "shell", path: "install/compose.sh"
+    k8sm.vm.provision "shell", path: "install/k8s.sh"
+    k8sm.vm.provision "shell", path: "install/glusterfs.sh"
+  end
+  config.vm.define :k8s_node_1 do |k8sn1|
+    k8sn1.vm.box = "ubuntu/xenial64"
+    k8sn1.vm.network :private_network, ip: "192.168.56.102"
+    k8sn1.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "k8s_node_1b" ]
+      unless File.exist?(secondDisk)
+        vb.customize ['createhd', '--filename', secondDisk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', secondDisk]
+    end
+    k8sn1.vm.provision "shell", inline: <<-SHELL
+      echo "node1" > /etc/hostname
+      hostname node1
+    SHELL
+    k8sn1.vm.provision "shell", path: "install/configurations.sh"
+    k8sn1.vm.provision "shell", path: "install/docker.sh"
+    k8sn1.vm.provision "shell", path: "install/k8s.sh"
+    k8sn1.vm.provision "shell", path: "install/glusterfs.sh"
+  end
+  config.vm.define :k8s_node_2 do |k8sn2|
+    k8sn2.vm.box = "ubuntu/xenial64"
+    k8sn2.vm.network :private_network, ip: "192.168.56.103"
+    k8sn2.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "k8s_node_2b" ]
+      unless File.exist?(thirdDisk)
+        vb.customize ['createhd', '--filename', thirdDisk, '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+      vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', thirdDisk]
+    end
+    k8sn2.vm.provision "shell", inline: <<-SHELL
+      echo "node2" > /etc/hostname
+      hostname node2
+    SHELL
+    k8sn2.vm.provision "shell", path: "install/configurations.sh"
+    k8sn2.vm.provision "shell", path: "install/docker.sh"
+    k8sn2.vm.provision "shell", path: "install/k8s.sh"
+    k8sn2.vm.provision "shell", path: "install/glusterfs.sh"
+  end
+#  config.vm.define :k8s_node_3 do |k8sn3|
+#    k8sn3.vm.box = "ubuntu/xenial64"
+#    k8sn3.vm.network :private_network, ip: "192.168.56.104"
+#    k8sn3.vm.provider :virtualbox do |vb|
+#      vb.customize ["modifyvm", :id, "--memory", "1024","--cpus", "1", "--name", "k8s_node_3b" ]
+#      unless File.exist?(fourthDisk)
+#        vb.customize ['createhd', '--filename', fourthDisk, '--variant', 'Fixed', '--size', 5 * 1024]
+#      end
+#      vb.customize ['storageattach', :id,  '--storagectl', 'SCSI', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', fourthDisk]
+#    end
+#    k8sn3.vm.provision "shell", inline: <<-SHELL
+#      echo "node3"> /etc/hostname
+#      hostname node3
+#    SHELL
+#    k8sn3.vm.provision "shell", path: "install/configurations.sh"
+#    k8sn3.vm.provision "shell", path: "install/docker.sh"
+#    k8sn3.vm.provision "shell", path: "install/k8s.sh"
+#    k8sn3.vm.provision "shell", path: "install/glusterfs.sh"
+#  end
+end
