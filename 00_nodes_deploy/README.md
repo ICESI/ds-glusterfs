@@ -82,3 +82,4 @@ $ ip a
 * https://www.cyberciti.biz/faq/linux-how-to-delete-a-partition-with-fdisk-command/
 * https://support.rackspace.com/how-to/getting-started-with-glusterfs-considerations-and-installation/
 * https://everythingshouldbevirtual.com/virtualization/vagrant-adding-a-second-hard-drive/
+* https://www.jamescoyle.net/how-to/351-share-glusterfs-volume-to-a-single-ip-address
